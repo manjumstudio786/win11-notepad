@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notepad</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <!-- Tab bar at the very top, in the title-bar row (official Windows 11
+       Notepad layout). The window is frameless: this row is the drag
+       region, with custom minimize / maximize / close buttons at the
+       right end. The new-tab + button sits right after the last tab,
+       Chrome-style, not pinned to the far right edge. -->
+  <div id="tabbar">
+    <div id="tabs"></div>
+    <button id="new-tab-btn" title="New Tab (Ctrl+T)">+</button>
+    <div id="tabbar-spacer" title="Notepad"></div>
+    <div id="window-controls">
+      <button id="win-min-btn" title="Minimize">&#8722;</button>
+      <button id="win-max-btn" title="Maximize">&#9634;</button>
+      <button id="win-close-btn" title="Close">&#10005;</button>
+    </div>
+  </div>
+
+  <!-- Menu bar -->
+  <div id="menubar">
+    <div class="menu" data-menu="file"><button class="menu-btn" id="menu-file-btn">File</button>
+      <div class="dropdown" id="dropdown-file">
+        <button data-action="new-tab">New Tab <span class="shortcut">Ctrl+T</span></button>
+        <button data-action="new-window">New Window <span class="shortcut">Ctrl+Shift+N</span></button>
+        <button data-action="open">Open... <span class="shortcut">Ctrl+O</span></button>
+        <div class="separator"></div>
+        <button data-action="save">Save <span class="shortcut">Ctrl+S</span></button>
+        <button data-action="save-as">Save As... <span class="shortcut">Ctrl+Shift+S</span></button>
+        <button data-action="save-all">Save All</button>
+        <div class="separator"></div>
+        <button data-action="print">Print... <span class="shortcut">Ctrl+P</span></button>
+        <button data-action="export-pdf">Export as PDF...</button>
+        <div class="separator"></div>
+        <button data-action="show-in-folder">Show in Folder</button>
+        <div class="separator"></div>
+        <div class="dropdown-label">Recent Files</div>
+        <div id="recent-list"></div>
+        <div class="separator"></div>
+        <button data-action="close-tab">Close Tab <span class="shortcut">Ctrl+W</span></button>
+        <button data-action="exit">Exit</button>
+      </div>
+    </div>
+    <div class="menu" data-menu="edit"><button class="menu-btn" id="menu-edit-btn">Edit</button>
+      <div class="dropdown" id="dropdown-edit">
+        <button data-action="undo">Undo <span class="shortcut">Ctrl+Z</span></button>
+        <button data-action="redo">Redo <span class="shortcut">Ctrl+Y</span></button>
+        <div class="separator"></div>
+        <button data-action="cut">Cut <span class="shortcut">Ctrl+X</span></button>
+        <button data-action="copy">Copy <span class="shortcut">Ctrl+C</span></button>
+        <button data-action="paste">Paste <span class="shortcut">Ctrl+V</span></button>
+        <button data-action="select-all">Select All <span class="shortcut">Ctrl+A</span></button>
+        <div class="separator"></div>
+        <button data-action="find">Find <span class="shortcut">Ctrl+F</span></button>
+        <button data-action="replace">Replace <span class="shortcut">Ctrl+H</span></button>
+        <button data-action="find-next">Find Next <span class="shortcut">F3</span></button>
+        <button data-action="find-prev">Find Previous <span class="shortcut">Shift+F3</span></button>
+        <button data-action="go-to-line">Go To Line... <span class="shortcut">Ctrl+G</span></button>
+        <div class="separator"></div>
+        <button data-action="time-date">Time/Date <span class="shortcut">F5</span></button>
+        <div class="separator"></div>
+        <button data-action="emoji">Emoji... <span class="shortcut">Ctrl+.</span></button>
+      </div>
+    </div>
+    <div class="menu" data-menu="view"><button class="menu-btn" id="menu-view-btn">View</button>
+      <div class="dropdown" id="dropdown-view">
+        <button data-action="view-formatted" id="menu-view-formatted">Formatted View</button>
+        <button data-action="view-markdown" id="menu-view-markdown">Markdown View</button>
+        <div class="separator"></div>
+        <button data-action="toggle-wrap" id="menu-wrap">Word Wrap</button>
+        <button data-action="toggle-status" id="menu-status">Status Bar</button>
+        <button data-action="toggle-theme" id="menu-theme">Dark Mode</button>
+        <div class="separator"></div>
+        <button data-action="zoom-in">Zoom In <span class="shortcut">Ctrl + Plus</span></button>
+        <button data-action="zoom-out">Zoom Out <span class="shortcut">Ctrl + Minus</span></button>
+        <button data-action="zoom-reset">Restore Default Zoom <span class="shortcut">Ctrl+0</span></button>
+        <div class="separator"></div>
+        <button data-action="convert-eol-crlf">Convert Line Endings to CRLF</button>
+        <button data-action="convert-eol-lf">Convert Line Endings to LF</button>
+        <div class="separator"></div>
+        <button data-action="settings">Settings</button>
+        <button data-action="about">About Notepad</button>
+      </div>
+    </div>
+    <button id="emoji-btn" title="Emoji (Ctrl+.)">&#128522;</button>
+    <!-- 1.4.0: Day / Night theme toggle, next to the emoji button.
+         1.5: no orange - transparent button, sun icon in Day mode and
+         moon icon in Night mode drawn in currentColor (theme text). -->
+    <button id="theme-toggle-btn" title="Switch to Night Mode" aria-label="Switch to Night Mode">
+      <svg id="theme-icon-sun" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/><line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/><line x1="17.7" y1="17.7" x2="19.8" y2="19.8"/><line x1="4.2" y1="19.8" x2="6.3" y2="17.7"/><line x1="17.7" y1="6.3" x2="19.8" y2="4.2"/></svg>
+      <svg id="theme-icon-moon" class="hidden" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg>
+    </button>
+  </div>
+
+  <!-- Formatting toolbar (official Windows 11 Notepad, Markdown model) -->
+  <div id="formatbar">
+    <select id="heading-select" title="Heading" aria-label="Heading">
+      <option value="normal">Normal text</option>
+      <option value="h1">Heading 1</option>
+      <option value="h2">Heading 2</option>
+      <option value="h3">Heading 3</option>
+    </select>
+    <button id="fmt-bold" class="fmt-btn" title="Bold (Ctrl+B)"><b>B</b></button>
+    <button id="fmt-italic" class="fmt-btn" title="Italic (Ctrl+I)"><i>I</i></button>
+    <button id="fmt-strike" class="fmt-btn" title="Strikethrough"><s>S</s></button>
+    <button id="fmt-bullet" class="fmt-btn" title="Bulleted list">&#8226;&#8801;</button>
+    <button id="fmt-numbered" class="fmt-btn" title="Numbered list">1&#8801;</button>
+    <button id="fmt-link" class="fmt-btn" title="Link (Ctrl+K)">&#128279;</button>
+    <button id="fmt-table" class="fmt-btn" title="Insert table">&#9638;</button>
+    <button id="fmt-clear" class="fmt-btn fmt-text" title="Clear formatting">Clear</button>
+  </div>
+
+  <!-- Find bar -->
+  <div id="find-bar" class="hidden">
+    <input id="find-input" type="text" placeholder="Find" aria-label="Find">
+    <button class="find-opt" data-opt="matchCase" title="Match case">Aa</button>
+    <button class="find-opt" data-opt="wholeWord" title="Whole word">ab</button>
+    <button class="find-opt" data-opt="regex" title="Use regular expression">.*</button>
+    <span id="find-count"></span>
+    <button id="find-prev-btn" title="Find Previous (Shift+F3)">&#9650;</button>
+    <button id="find-next-btn" title="Find Next (F3)">&#9660;</button>
+    <button id="find-close-btn" title="Close (Esc)">&#10005;</button>
+  </div>
+
+  <!-- Replace bar -->
+  <div id="replace-bar" class="hidden">
+    <input id="replace-find-input" type="text" placeholder="Find" aria-label="Find">
+    <input id="replace-with-input" type="text" placeholder="Replace with" aria-label="Replace with">
+    <button class="find-opt" data-opt="matchCase" title="Match case">Aa</button>
+    <button class="find-opt" data-opt="wholeWord" title="Whole word">ab</button>
+    <button class="find-opt" data-opt="regex" title="Use regular expression">.*</button>
+    <button id="replace-one-btn">Replace</button>
+    <button id="replace-all-btn">Replace All</button>
+    <span id="replace-count"></span>
+    <button id="replace-close-btn" title="Close (Esc)">&#10005;</button>
+  </div>
+
+  <!-- Emoji picker (WhatsApp style) -->
+  <div id="emoji-picker" class="hidden">
+    <div id="emoji-picker-header">
+      <input id="emoji-search" type="text" placeholder="Search emoji" aria-label="Search emoji">
+      <button id="emoji-close-btn" title="Close (Esc)">&#10005;</button>
+    </div>
+    <div id="emoji-categories"></div>
+    <div id="emoji-grid"></div>
+    <div id="emoji-footer"><span id="emoji-count"></span></div>
+  </div>
+
+  <!-- Editor: Markdown view (textarea, raw syntax) and Formatted view
+       (rendered Markdown, editable). Only one is visible at a time. -->
+  <div id="editor-wrap">
+    <textarea id="editor" class="hidden" spellcheck="true" placeholder="Start typing..." wrap="soft"></textarea>
+    <div id="formatted-view" contenteditable="true" spellcheck="true" aria-label="Formatted editor"></div>
+  </div>
+
+  <!-- Status bar -->
+  <div id="statusbar">
+    <span id="status-lncol">Ln 1, Col 1</span>
+    <span id="status-words">0 words</span>
+    <span id="status-chars">0 characters</span>
+    <span id="status-zoom">100%</span>
+    <span id="status-encoding">UTF-8</span>
+    <span id="status-eol">LF</span>
+    <button id="status-format" title="Switch between Formatted and Markdown view">Formatted</button>
+    <span id="status-path" title="">Untitled</span>
+  </div>
+</div>
+
+<!-- Right-click context menu (Cut/Copy/Paste/Select All/Undo/Redo).
+     Shown by renderer.js; hidden by default. -->
+<div id="context-menu" class="hidden">
+  <button data-ctx="undo">Undo <span class="shortcut">Ctrl+Z</span></button>
+  <button data-ctx="redo">Redo <span class="shortcut">Ctrl+Y</span></button>
+  <div class="separator"></div>
+  <button data-ctx="cut">Cut <span class="shortcut">Ctrl+X</span></button>
+  <button data-ctx="copy">Copy <span class="shortcut">Ctrl+C</span></button>
+  <button data-ctx="paste">Paste <span class="shortcut">Ctrl+V</span></button>
+  <div class="separator"></div>
+  <button data-ctx="select-all">Select All <span class="shortcut">Ctrl+A</span></button>
+</div>
+
+<!-- Confirm save modal -->
+<div id="modal-overlay" class="hidden">
+  <div id="modal">
+    <div id="modal-title">Notepad</div>
+    <div id="modal-message"></div>
+    <div id="modal-buttons"></div>
+  </div>
+</div>
+
+<!-- Go To Line modal -->
+<div id="gotoline-overlay" class="hidden">
+  <div id="modal">
+    <div id="modal-title">Go To Line</div>
+    <div class="modal-row"><label for="gotoline-input">Line number:</label>
+    <input id="gotoline-input" type="number" min="1" value="1"></div>
+    <div id="modal-buttons">
+      <button id="gotoline-ok">Go To</button>
+      <button id="gotoline-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Insert Link modal -->
+<div id="link-overlay" class="hidden">
+  <div id="modal">
+    <div id="modal-title">Insert Link</div>
+    <div class="modal-row"><label for="link-url-input">Web address:</label>
+    <input id="link-url-input" type="text" placeholder="https://example.com" style="flex: 1;"></div>
+    <div class="setting-note">In the formatted view, hold Ctrl and click a link to open it in your browser.</div>
+    <div id="modal-buttons">
+      <button id="link-ok" class="primary">Insert</button>
+      <button id="link-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings modal -->
+<div id="settings-overlay" class="hidden">
+  <div id="modal" class="wide">
+    <div id="modal-title">Settings</div>
+    <div class="setting-row"><label for="setting-theme">Theme</label>
+      <select id="setting-theme">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="system">System</option>
+      </select></div>
+    <div class="setting-row"><label for="setting-font">Font</label>
+      <select id="setting-font">
+        <option value="Consolas, 'Courier New', monospace">Consolas</option>
+        <option value="'Courier New', monospace">Courier New</option>
+        <option value="'Cascadia Mono', Consolas, monospace">Cascadia Mono</option>
+        <option value="'Cascadia Code', Consolas, monospace">Cascadia Code</option>
+        <option value="'Segoe UI', sans-serif">Segoe UI</option>
+        <option value="Arial, sans-serif">Arial</option>
+        <option value="Calibri, sans-serif">Calibri</option>
+        <option value="Cambria, serif">Cambria</option>
+        <option value="Georgia, serif">Georgia</option>
+        <option value="'Times New Roman', serif">Times New Roman</option>
+        <option value="Verdana, sans-serif">Verdana</option>
+        <option value="Tahoma, sans-serif">Tahoma</option>
+        <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+        <option value="'Lucida Console', monospace">Lucida Console</option>
+        <option value="'JetBrains Mono', Consolas, monospace">JetBrains Mono</option>
+        <option value="'Fira Code', Consolas, monospace">Fira Code</option>
+        <option value="'Source Code Pro', Consolas, monospace">Source Code Pro</option>
+        <option value="Hack, Consolas, monospace">Hack</option>
+        <option value="'Ubuntu Mono', Consolas, monospace">Ubuntu Mono</option>
+        <option value="'DejaVu Sans Mono', monospace">DejaVu Sans Mono</option>
+        <option value="'Liberation Mono', monospace">Liberation Mono</option>
+        <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+      </select></div>
+    <div class="setting-row"><label for="setting-font-weight">Font weight</label>
+      <select id="setting-font-weight">
+        <option value="400">Normal</option>
+        <option value="600">Semi-bold</option>
+        <option value="700">Bold</option>
+      </select></div>
+    <div class="setting-row"><label for="setting-font-size">Font size</label>
+      <input id="setting-font-size" type="number" min="8" max="48" value="15"></div>
+    <div class="setting-row"><label for="setting-wrap">Word wrap</label>
+      <input id="setting-wrap" type="checkbox"></div>
+    <div class="setting-row"><label for="setting-autosave">Autosave session</label>
+      <input id="setting-autosave" type="checkbox" checked></div>
+    <div class="setting-row"><label for="setting-spellcheck">Spellcheck</label>
+      <input id="setting-spellcheck" type="checkbox" checked></div>
+    <div class="setting-row"><label for="setting-formatting">Text formatting (Markdown)</label>
+      <input id="setting-formatting" type="checkbox" checked></div>
+    <div class="setting-note">When text formatting is off, the formatting toolbar is hidden and the editor is plain text, like the classic Notepad.</div>
+    <div class="setting-row"><label for="setting-default-apps">Default app for .txt files</label>
+      <button id="setting-default-apps">Open Default Apps settings</button></div>
+    <div class="setting-note">Windows does not let an installer set the default app silently. After installing, pick Notepad once for .txt files in Default Apps. Then files from right-click &gt; New &gt; Text Document will open in this Notepad.</div>
+    <div id="modal-buttons">
+      <button id="settings-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- About modal -->
+<div id="about-overlay" class="hidden">
+  <div id="modal">
+    <div id="modal-title">About Notepad</div>
+    <div id="about-body">
+      <div id="about-name">Notepad</div>
+      <div>Version <span id="about-version">1.6</span></div>
+      <div>Windows 11 style Notepad for Windows 10 and 11.</div>
+      <div>Tabs, dark mode, autosave, find and replace, Markdown formatting, emoji picker.</div>
+      <div>Developed by Anjum Learning Lab.</div>
+    </div>
+    <div id="modal-buttons">
+      <button id="about-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="emoji-data.js"></script>
+<script src="text-utils.js"></script>
+<script src="renderer.js"></script>
+</body>
+</html>
